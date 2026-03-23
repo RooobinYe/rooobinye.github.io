@@ -8,7 +8,7 @@ description: "Redis 常用数据类型、缓存三大问题与分布式锁"
 
 ## 1. String（字符串）
 
-```redis
+```bash
 SET user:name "Tom"
 SET user:age 25
 SET counter 100
@@ -25,7 +25,7 @@ MSET greeting "Hello Redis" pi 3.14159
 
 ## 2. List（列表，有序，可重复）
 
-```redis
+```bash
 RPUSH tasks "learn-redis" "write-code" "read-book" "exercise" "write-code"
 LPUSH recent_news "newsA" "newsB" "newsC"
 ```
@@ -37,7 +37,7 @@ LPUSH recent_news "newsA" "newsB" "newsC"
 
 ## 3. Hash（哈希，类似对象/字典）
 
-```redis
+```bash
 HSET student:1001 name "Alice" age 20 major "CS" score 95.5
 HSET student:1002 name "Bob" age 22 major "Math" score 88.0
 ```
@@ -49,7 +49,7 @@ HSET student:1002 name "Bob" age 22 major "Math" score 88.0
 
 ## 4. Set（集合，无序，不重复）
 
-```redis
+```bash
 SADD frontend_skills "HTML" "CSS" "JavaScript" "React" "Vue"
 SADD backend_skills "Go" "Java" "Python" "JavaScript" "SQL"
 ```
@@ -63,7 +63,7 @@ SADD backend_skills "Go" "Java" "Python" "JavaScript" "SQL"
 
 ## 5. Sorted Set（有序集合，按分数排序）
 
-```redis
+```bash
 ZADD leaderboard 100 "playerA" 85 "playerB" 92 "playerC" 78 "playerD" 110 "playerE"
 ZADD hot_search 9999 "redis-tutorial" 8888 "golang" 7777 "docker-intro" 6666 "microservice"
 ```
@@ -75,7 +75,7 @@ ZADD hot_search 9999 "redis-tutorial" 8888 "golang" 7777 "docker-intro" 6666 "mi
 
 ## 6. Stream（流，消息队列）
 
-```redis
+```bash
 XADD mystream * user "Tom" action "login" ip "192.168.1.1"
 XADD mystream * user "Alice" action "purchase" item "keyboard"
 XADD mystream * user "Bob" action "logout" ip "10.0.0.1"
@@ -89,7 +89,7 @@ XADD mystream * user "Bob" action "logout" ip "10.0.0.1"
 
 ## 7. Bitmap（位图，本质是 String 的位操作）
 
-```redis
+```bash
 SETBIT user:sign:2024 0 1
 SETBIT user:sign:2024 1 1
 SETBIT user:sign:2024 2 0
@@ -105,7 +105,7 @@ SETBIT user:sign:2024 6 1
 
 ## 8. HyperLogLog（基数估算，用于统计独立访客）
 
-```redis
+```bash
 PFADD page:uv:home "user1" "user2" "user3" "user4"
 PFADD page:uv:about "user2" "user5" "user6"
 ```
@@ -125,8 +125,8 @@ PFADD page:uv:about "user2" "user5" "user6"
 
 ## Redis 用作分布式锁
 
-```redis
+```bash
 SET lock:resource "holder-id" NX EX 10
-// NX — 只有 key 不存在时才能设置成功（抢锁）
-// EX — 自动过期（防死锁）
 ```
+- NX — 只有 key 不存在时才能设置成功（抢锁）
+- EX — 自动过期（防死锁）

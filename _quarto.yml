@@ -16,6 +16,7 @@ website:
         href: https://bsky.app/
 format:
   html:
+    toc: true
     theme:
       light: [cosmo, brand]
       dark: [darkly, brand]
