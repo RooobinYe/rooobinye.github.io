@@ -1,0 +1,132 @@
+---
+title: "Redis"
+author: "RobinYe"
+date: "2026-03-23"
+categories: [Redis]
+description: "Redis 常用数据类型、缓存三大问题与分布式锁"
+---
+
+## 1. String（字符串）
+
+```redis
+SET user:name "Tom"
+SET user:age 25
+SET counter 100
+MSET greeting "Hello Redis" pi 3.14159
+```
+
+| Key         | Value           | 说明     |
+| ----------- | --------------- | -------- |
+| `user:name` | `"Tom"`         | 用户名   |
+| `user:age`  | `25`            | 用户年龄 |
+| `counter`   | `100`           | 计数器   |
+| `greeting`  | `"Hello Redis"` | 问候语   |
+| `pi`        | `3.14159`       | 圆周率   |
+
+## 2. List（列表，有序，可重复）
+
+```redis
+RPUSH tasks "learn-redis" "write-code" "read-book" "exercise" "write-code"
+LPUSH recent_news "newsA" "newsB" "newsC"
+```
+
+| Key           | Values                                                       | 说明                                     |
+| ------------- | ------------------------------------------------------------ | ---------------------------------------- |
+| `tasks`       | `[learn-redis, write-code, read-book, exercise, write-code]` | 任务列表（RPUSH 从右边插入）             |
+| `recent_news` | `[newsC, newsB, newsA]`                                      | 最近新闻（LPUSH 从左边插入，最新的在前） |
+
+## 3. Hash（哈希，类似对象/字典）
+
+```redis
+HSET student:1001 name "Alice" age 20 major "CS" score 95.5
+HSET student:1002 name "Bob" age 22 major "Math" score 88.0
+```
+
+| Key            | 字段                                             | 说明     |
+| -------------- | ------------------------------------------------ | -------- |
+| `student:1001` | `{name: Alice, age: 20, major: CS, score: 95.5}` | 学生信息 |
+| `student:1002` | `{name: Bob, age: 22, major: Math, score: 88.0}` | 学生信息 |
+
+## 4. Set（集合，无序，不重复）
+
+```redis
+SADD frontend_skills "HTML" "CSS" "JavaScript" "React" "Vue"
+SADD backend_skills "Go" "Java" "Python" "JavaScript" "SQL"
+```
+
+| Key               | 成员                                  | 说明       |
+| ----------------- | ------------------------------------- | ---------- |
+| `frontend_skills` | `{HTML, CSS, JavaScript, React, Vue}` | 前端技术栈 |
+| `backend_skills`  | `{Go, Java, Python, JavaScript, SQL}` | 后端技术栈 |
+
+交集：`SINTER frontend_skills backend_skills` → `{JavaScript}`
+
+## 5. Sorted Set（有序集合，按分数排序）
+
+```redis
+ZADD leaderboard 100 "playerA" 85 "playerB" 92 "playerC" 78 "playerD" 110 "playerE"
+ZADD hot_search 9999 "redis-tutorial" 8888 "golang" 7777 "docker-intro" 6666 "microservice"
+```
+
+| Key           | 成员（分数 → 成员）                                                      | 说明       |
+| ------------- | ------------------------------------------------------------------------ | ---------- |
+| `leaderboard` | `110:playerE, 100:playerA, 92:playerC, 85:playerB, 78:playerD`           | 游戏排行榜 |
+| `hot_search`  | `9999:redis-tutorial, 8888:golang, 7777:docker-intro, 6666:microservice` | 热搜排行   |
+
+## 6. Stream（流，消息队列）
+
+```redis
+XADD mystream * user "Tom" action "login" ip "192.168.1.1"
+XADD mystream * user "Alice" action "purchase" item "keyboard"
+XADD mystream * user "Bob" action "logout" ip "10.0.0.1"
+```
+
+| Key        | 消息内容                                       | 说明     |
+| ---------- | ---------------------------------------------- | -------- |
+| `mystream` | `{user:Tom, action:login, ip:192.168.1.1}`     | 用户登录 |
+|            | `{user:Alice, action:purchase, item:keyboard}` | 用户购买 |
+|            | `{user:Bob, action:logout, ip:10.0.0.1}`       | 用户登出 |
+
+## 7. Bitmap（位图，本质是 String 的位操作）
+
+```redis
+SETBIT user:sign:2024 0 1
+SETBIT user:sign:2024 1 1
+SETBIT user:sign:2024 2 0
+SETBIT user:sign:2024 3 1
+SETBIT user:sign:2024 4 0
+SETBIT user:sign:2024 5 0
+SETBIT user:sign:2024 6 1
+```
+
+| Key              | 位数据                      | 说明                  |
+| ---------------- | --------------------------- | --------------------- |
+| `user:sign:2024` | `1,1,0,1,0,0,1`（索引 0-6） | 签到记录，共签到 4 天 |
+
+## 8. HyperLogLog（基数估算，用于统计独立访客）
+
+```redis
+PFADD page:uv:home "user1" "user2" "user3" "user4"
+PFADD page:uv:about "user2" "user5" "user6"
+```
+
+| Key             | 元素                         | 估算数量 | 说明             |
+| --------------- | ---------------------------- | -------- | ---------------- |
+| `page:uv:home`  | `user1, user2, user3, user4` | 4        | 首页独立访客数   |
+| `page:uv:about` | `user2, user5, user6`        | 3        | 关于页独立访客数 |
+
+## Redis 缓存三大问题
+
+| 问题         | 核心特征 | 根本原因                               | 最常用解决方案                     |
+| ------------ | -------- | -------------------------------------- | ---------------------------------- |
+| **缓存穿透** | 无中生有 | 查的数据压根不存在（缓存和 DB 都没有） | 布隆过滤器、缓存空对象             |
+| **缓存击穿** | 单点突破 | 单个热点 Key 突然过期                  | 互斥锁、逻辑过期                   |
+| **缓存雪崩** | 全面崩盘 | 大量 Key 同时过期，或 Redis 宕机       | 过期时间加随机值、Redis 高可用集群 |
+
+## Redis 用作分布式锁
+
+```redis
+SET lock:resource "holder-id" NX EX 10
+// NX — 只有 key 不存在时才能设置成功（抢锁）
+// EX — 自动过期（防死锁）
+```
