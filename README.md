@@ -34,13 +34,6 @@ quarto preview
 
 ```bash
 git add .
-git commit -m "新文章: 文章标题"
+git commit -m "message"
 git push
-```
-
-## 本地开发
-
-```bash
-# 安装 Quarto: https://quarto.org/docs/get-started/
-quarto preview
 ```

@@ -1,0 +1,26 @@
+---
+title: "Playwright + Claude Code"
+author: "RobinYe"
+date: "2026-04-07"
+categories: [AI]
+description: "借助 Playwright CLI 与 Claude Code，实现 AI 对于浏览器的操控"
+---
+
+## 安装 Playwright
+
+这里我们采用的是 [microsoft/playwright](https://github.com/microsoft/playwright)，而不是 Playwright 的 MCP 服务器模式，主要是为了节省 Tokens 的消耗。
+
+```bash
+npm install -g @playwright/cli@latest
+npx playwright install chromium
+```
+
+为 Claude Code 安装 Playwright 技能，使其具备浏览器自动化能力：
+
+```bash
+playwright-cli install --skills
+```
+
+## 使用 Claude Code 操控浏览器
+
+以投简历为例，可以大幅度节省投简历所花费的时间。
